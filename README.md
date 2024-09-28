@@ -1,2 +1,2 @@
 # tapper
-Solution for "Two Computers" made with Swift
+app-solution for "Two Computers" built with Swift
