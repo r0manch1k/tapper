@@ -6,7 +6,7 @@
 //
 
 import SpriteKit
-import CoreGraphics
+
 
 class GameScene: SKScene {
     
@@ -35,8 +35,11 @@ class GameScene: SKScene {
         let pressedKey = event.characters!
         var velocity: CGVector
         
+//        alphaValue = easeOutCirc(alphaValue)
+//        let currentSpeed = lerp(0, playerSpeed, alphaValue)
+        
         alphaValue = easeOutCirc(alphaValue)
-        let currentSpeed = lerp(0, playerSpeed, alphaValue)
+        let currentSpeed = playerSpeed * alphaValue
         
         if pressedKey == "a" || pressedKey == "A" {
             velocity = CGVector(dx: -currentSpeed, dy: 0)

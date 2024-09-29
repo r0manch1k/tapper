@@ -16,7 +16,6 @@ struct ContentView: View {
         return scene
     }
     
-        
     var body: some View {
         HStack(spacing: 0) {
             SpriteView(scene: scene)
