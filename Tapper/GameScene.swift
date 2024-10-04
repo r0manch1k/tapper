@@ -9,7 +9,6 @@ import SpriteKit
 
 
 class GameScene: SKScene {
-    
     var playerNode = SKSpriteNode()
     var oldMousePosition = NSPoint(x: 0, y: 0)
     var playerSpeed: Double = 650
