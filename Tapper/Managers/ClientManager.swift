@@ -104,11 +104,10 @@ class ClientManager {
 
 class ServerManager : ClientManager {
     init() {
-        var _server_ip = "127.0.0.1"
-        super.init(_server_ip: _server_ip)
+        super.init(_server_ip: "127.0.0.1")
         
         if self.get_server_ip() != nil {
-            _server_ip = self.get_server_ip()!
+            self.server_ip = self.get_server_ip()!
         }
     }
         
