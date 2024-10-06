@@ -6,11 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		69F3987A2CAEA0C80037B791 /* SwiftSocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69F398752CAE9E0C0037B791 /* SwiftSocket.framework */; };
-		69F3987B2CAEA0C80037B791 /* SwiftSocket.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 69F398752CAE9E0C0037B791 /* SwiftSocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		3021AE032CA6D363005D8CB6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -26,63 +21,12 @@
 			remoteGlobalIDString = 3021ADF02CA6D361005D8CB6;
 			remoteInfo = Tapper;
 		};
-		69F398742CAE9E0C0037B791 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 69F3986A2CAE9E0C0037B791 /* SwiftSocket.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 377DAA761DCDE45D00009697;
-			remoteInfo = "SwiftSocket macOS";
-		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		69F3987C2CAEA0C80037B791 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				69F3987B2CAEA0C80037B791 /* SwiftSocket.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		3021ADF12CA6D361005D8CB6 /* Tapper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tapper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3021AE022CA6D363005D8CB6 /* TapperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapperTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3021AE0C2CA6D363005D8CB6 /* TapperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapperUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		69D0CC182CAE063D003B594D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		69D0CC192CAE063D003B594D /* Info-tvOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = "<group>"; };
-		69D0CC1A2CAE063D003B594D /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
-		69D0CC1B2CAE063D003B594D /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
-		69D0CC1C2CAE063D003B594D /* SwiftSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftSocket.h; sourceTree = "<group>"; };
-		69D0CC1D2CAE063D003B594D /* TCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPClient.swift; sourceTree = "<group>"; };
-		69D0CC1E2CAE063D003B594D /* UDPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPClient.swift; sourceTree = "<group>"; };
-		69D0CC1F2CAE063D003B594D /* ytcpsocket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ytcpsocket.c; sourceTree = "<group>"; };
-		69D0CC202CAE063D003B594D /* yudpsocket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yudpsocket.c; sourceTree = "<group>"; };
-		69F398522CAE9E0C0037B791 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		69F398532CAE9E0C0037B791 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		69F398542CAE9E0C0037B791 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		69F398552CAE9E0C0037B791 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
-		69F398572CAE9E0C0037B791 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		69F398592CAE9E0C0037B791 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
-		69F3985B2CAE9E0C0037B791 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		69F3985C2CAE9E0C0037B791 /* Info-tvOS.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Info-tvOS.plist"; sourceTree = "<group>"; };
-		69F3985D2CAE9E0C0037B791 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
-		69F3985E2CAE9E0C0037B791 /* Socket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socket.swift; sourceTree = "<group>"; };
-		69F3985F2CAE9E0C0037B791 /* SwiftSocket.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SwiftSocket.h; sourceTree = "<group>"; };
-		69F398602CAE9E0C0037B791 /* TCPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPClient.swift; sourceTree = "<group>"; };
-		69F398612CAE9E0C0037B791 /* UDPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPClient.swift; sourceTree = "<group>"; };
-		69F398622CAE9E0C0037B791 /* ytcpsocket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = ytcpsocket.c; sourceTree = "<group>"; };
-		69F398632CAE9E0C0037B791 /* yudpsocket.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = yudpsocket.c; sourceTree = "<group>"; };
-		69F398652CAE9E0C0037B791 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		69F398662CAE9E0C0037B791 /* .swift-version */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".swift-version"; sourceTree = "<group>"; };
-		69F398672CAE9E0C0037B791 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
-		69F398682CAE9E0C0037B791 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		69F398692CAE9E0C0037B791 /* SwiftSocket.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = SwiftSocket.podspec; sourceTree = "<group>"; };
-		69F3986A2CAE9E0C0037B791 /* SwiftSocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = SwiftSocket.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -98,7 +42,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				69F3987A2CAEA0C80037B791 /* SwiftSocket.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -123,7 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				3021ADF32CA6D361005D8CB6 /* Tapper */,
-				69D0CC172CAE063D003B594D /* Frameworks */,
 				3021ADF22CA6D361005D8CB6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -138,85 +80,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		69D0CC172CAE063D003B594D /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				69F3986B2CAE9E0C0037B791 /* SwiftSocket-master */,
-				69D0CC212CAE063D003B594D /* Sources */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		69D0CC212CAE063D003B594D /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				69D0CC182CAE063D003B594D /* Info.plist */,
-				69D0CC192CAE063D003B594D /* Info-tvOS.plist */,
-				69D0CC1A2CAE063D003B594D /* Result.swift */,
-				69D0CC1B2CAE063D003B594D /* Socket.swift */,
-				69D0CC1C2CAE063D003B594D /* SwiftSocket.h */,
-				69D0CC1D2CAE063D003B594D /* TCPClient.swift */,
-				69D0CC1E2CAE063D003B594D /* UDPClient.swift */,
-				69D0CC1F2CAE063D003B594D /* ytcpsocket.c */,
-				69D0CC202CAE063D003B594D /* yudpsocket.c */,
-			);
-			name = Sources;
-			path = "../../Downloads/SwiftSocket-master/Sources";
-			sourceTree = "<group>";
-		};
-		69F3985A2CAE9E0C0037B791 /* iOS Example */ = {
-			isa = PBXGroup;
-			children = (
-				69F398522CAE9E0C0037B791 /* AppDelegate.swift */,
-				69F398532CAE9E0C0037B791 /* Assets.xcassets */,
-				69F398542CAE9E0C0037B791 /* Info.plist */,
-				69F398562CAE9E0C0037B791 /* LaunchScreen.storyboard */,
-				69F398582CAE9E0C0037B791 /* Main.storyboard */,
-				69F398592CAE9E0C0037B791 /* ViewController.swift */,
-			);
-			path = "iOS Example";
-			sourceTree = "<group>";
-		};
-		69F398642CAE9E0C0037B791 /* Sources */ = {
-			isa = PBXGroup;
-			children = (
-				69F3985B2CAE9E0C0037B791 /* Info.plist */,
-				69F3985C2CAE9E0C0037B791 /* Info-tvOS.plist */,
-				69F3985D2CAE9E0C0037B791 /* Result.swift */,
-				69F3985E2CAE9E0C0037B791 /* Socket.swift */,
-				69F3985F2CAE9E0C0037B791 /* SwiftSocket.h */,
-				69F398602CAE9E0C0037B791 /* TCPClient.swift */,
-				69F398612CAE9E0C0037B791 /* UDPClient.swift */,
-				69F398622CAE9E0C0037B791 /* ytcpsocket.c */,
-				69F398632CAE9E0C0037B791 /* yudpsocket.c */,
-			);
-			path = Sources;
-			sourceTree = "<group>";
-		};
-		69F3986B2CAE9E0C0037B791 /* SwiftSocket-master */ = {
-			isa = PBXGroup;
-			children = (
-				69F3985A2CAE9E0C0037B791 /* iOS Example */,
-				69F398642CAE9E0C0037B791 /* Sources */,
-				69F398652CAE9E0C0037B791 /* .gitignore */,
-				69F398662CAE9E0C0037B791 /* .swift-version */,
-				69F398672CAE9E0C0037B791 /* LICENSE */,
-				69F398682CAE9E0C0037B791 /* README.md */,
-				69F398692CAE9E0C0037B791 /* SwiftSocket.podspec */,
-				69F3986A2CAE9E0C0037B791 /* SwiftSocket.xcodeproj */,
-			);
-			name = "SwiftSocket-master";
-			path = "../../Downloads/SwiftSocket-master";
-			sourceTree = "<group>";
-		};
-		69F3986C2CAE9E0C0037B791 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				69F398752CAE9E0C0037B791 /* SwiftSocket.framework */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -227,7 +90,6 @@
 				3021ADED2CA6D361005D8CB6 /* Sources */,
 				3021ADEE2CA6D361005D8CB6 /* Frameworks */,
 				3021ADEF2CA6D361005D8CB6 /* Resources */,
-				69F3987C2CAEA0C80037B791 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -315,18 +177,9 @@
 			);
 			mainGroup = 3021ADE82CA6D360005D8CB6;
 			minimizedProjectReferenceProxies = 1;
-			packageReferences = (
-				69BCB4EE2CAD907F009E68B5 /* XCRemoteSwiftPackageReference "SwiftSocket" */,
-			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3021ADF22CA6D361005D8CB6 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 69F3986C2CAE9E0C0037B791 /* Products */;
-					ProjectRef = 69F3986A2CAE9E0C0037B791 /* SwiftSocket.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				3021ADF02CA6D361005D8CB6 /* Tapper */,
@@ -335,16 +188,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		69F398752CAE9E0C0037B791 /* SwiftSocket.framework */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.framework;
-			path = SwiftSocket.framework;
-			remoteRef = 69F398742CAE9E0C0037B791 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		3021ADEF2CA6D361005D8CB6 /* Resources */ = {
@@ -406,25 +249,6 @@
 			targetProxy = 3021AE0D2CA6D363005D8CB6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		69F398562CAE9E0C0037B791 /* LaunchScreen.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				69F398552CAE9E0C0037B791 /* Base */,
-			);
-			name = LaunchScreen.storyboard;
-			sourceTree = "<group>";
-		};
-		69F398582CAE9E0C0037B791 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				69F398572CAE9E0C0037B791 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		3021AE142CA6D363005D8CB6 /* Debug */ = {
@@ -550,7 +374,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Tapper/Tapper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -558,7 +381,6 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -577,7 +399,6 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = NO;
 				CODE_SIGN_ENTITLEMENTS = Tapper/Tapper.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -585,7 +406,6 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -703,17 +523,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		69BCB4EE2CAD907F009E68B5 /* XCRemoteSwiftPackageReference "SwiftSocket" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/swiftsocket/SwiftSocket?ysclid=m1rynmmkx1923844842";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 3021ADE92CA6D360005D8CB6 /* Project object */;
 }

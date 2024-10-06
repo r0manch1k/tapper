@@ -2,116 +2,246 @@ import Network
 import Foundation
 
 
-struct StateData{
-    var player_x: Double = 0
-    var player_y: Double = 0
-    var mouse_x: Double = 0
-    var mouse_y: Double = 0
-    var clicked: Bool = false
-
-    func to_string() -> String {
-        let int_clicked: Int = clicked ? 1 : 0
-        return "state:\(player_x):\(player_y):\(mouse_x):\(mouse_y):\(int_clicked)"
-    }
-
-    func from_string(_ string: String) -> StateData {
-        let parts = string.split(separator: ":")
-        return StateData(player_x: Double(parts[1])!, player_y: Double(parts[2])!, mouse_x: Double(parts[3])!, mouse_y: Double(parts[4])!, clicked: parts[5] == "1")
+extension Bool {
+    func toInt() -> Int {
+        return self ? 1 : 0
     }
 }
 
 
-class ClientManager {
-    var connection: NWConnection?
-    var server_port: UInt16 = 20001
-    var server_ip: String = "127.0.0.1"
-    
-    var buffer = 2048
-    var in_data = StateData()
-    var out_data = StateData()
-        
-    init(_server_ip: String) {
-        self.server_ip = _server_ip
+extension String {
+    func toDouble() throws -> Double {
+        guard let result: Double = Double(self) else {
+            throw CustomErrors.dataError
+        }
+        return result
+    }
+
+    func toBool() throws -> Bool {
+        guard let result: Int = Int(self) else {
+            throw CustomErrors.dataError
+        }
+        return result > 0 ? true : false
     }
     
-    private func join_to_server() {
-        self.connection = NWConnection(host: NWEndpoint.Host(self.server_ip), port: NWEndpoint.Port(rawValue: self.server_port)!, using: .udp)
-            
-        if self.get_server_state() == "ready" {
-            self.connection?.start(queue: .global())
-            self.send(message: "TAPPER_CONNECTED")
+    func index(from: Int) -> Index {
+        return self.index(startIndex, offsetBy: from)
+    }
+
+    func substring(from: Int) -> String {
+        let fromIndex = index(from: from)
+        return String(self[fromIndex...])
+    }
+
+    func substring(to: Int) -> String {
+        let toIndex = index(from: to)
+        return String(self[..<toIndex])
+    }
+
+    func substring(with r: Range<Int>) -> String {
+        let startIndex = index(from: r.lowerBound)
+        let endIndex = index(from: r.upperBound)
+        return String(self[startIndex..<endIndex])
+    }
+}
+
+
+enum CustomErrors: Error {
+    case dataError
+}
+
+
+struct GameData {
+    var playerX: Double = 0
+    var playerY: Double = 0
+    var mouseX: Double = 0
+    var mouseY: Double = 0
+    var mouseClicked: Bool = false
+
+    func toString() -> String {
+        return "state:\(playerX):\(playerY):\(mouseX):\(mouseY):\(mouseClicked.toInt())"
+    }
+
+    func toGameData(_ string: String) -> GameData {
+        let parts = string.components(separatedBy: ":")
+
+        let gameData: GameData = try! GameData(playerX: parts[1].toDouble(), playerY: parts[2].toDouble(), mouseX: parts[3].toDouble(), mouseY: parts[4].toDouble(), mouseClicked: parts[5].toBool())
+
+        return gameData
+    }
+}
+
+
+class SocketConnection {
+    fileprivate var serverAlive = false
+    fileprivate var connection: NWConnection?
+    fileprivate var serverPort: UInt16 = 20001
+    fileprivate var serverIp: String = "127.0.0.1"
+    
+    fileprivate var buffer = 2048
+    fileprivate var _inputData = GameData()
+    fileprivate var _outputData = GameData()
+    
+    fileprivate var _otherPlayerName = ""
+    fileprivate var _currentPlayerName = ""
+    
+    init() {
+        self._currentPlayerName = self.getCurrentPlayerName()
+    }
+    
+    var inputData: GameData {
+        get {
+            return self._inputData
+        }
+        set (__inputData) {
+            _inputData = __inputData
         }
     }
-        
-    func get_server_state() -> String {
-        if self.connection?.state == .ready {
-            return "ready"
-        } else if self.connection?.state == .setup {
-            return "setup"
-        } else if self.connection?.state == .cancelled {
-            return "cancelled"
-        } else if self.connection?.state == .preparing {
-            return "preparing"
-        } else {
-            return "connection error"
+    
+    var outputData: GameData {
+        get {
+            return self._outputData
         }
     }
     
-    func get_out_data() -> StateData {
-        return self.out_data
+    var otherPlayerName: String {
+        get {
+            return self._otherPlayerName
+        }
     }
     
-    func set_in_data(data: StateData) {
-        self.in_data = data
-    }
-    
-    func prepare_connection() {
-        self.join_to_server()
+    fileprivate func getCurrentPlayerName() -> String {
+        return Host.current().localizedName ?? ""
     }
         
-    func connect() {
-        self.prepare_connection()
-        self.connection = NWConnection(host: NWEndpoint.Host(self.server_ip), port: NWEndpoint.Port(rawValue: self.server_port)!, using: .udp)
-            
-        if self.get_server_state() == "ready" {
-            self.connection?.start(queue: .global())
-            
-            self.send(message: self.in_data.to_string())
-            self.receive()
-                
-            // while true {
-            //    self.send(message: self.in_data.to_string())
-            //    self.receive()
-            // }
+    func updateServerState(to state: NWConnection.State) {
+        switch (state) {
+        case .setup:
+            self.serverAlive = true
+        case .waiting:
+            self.serverAlive = true
+        case .ready:
+            self.serverAlive = true
+        case .failed:
+            self.serverAlive = false
+        case .cancelled:
+            self.serverAlive = false
+        case .preparing:
+            self.serverAlive = false
+        default:
+            self.serverAlive = false
+        }
+    }
+    
+    fileprivate func updateOtherPlayerName(name: String) {
+        self._otherPlayerName = name
+    }
+        
+    func openConnection() {
+        if !self.serverAlive {
+            self.prepareConnection()
+        }
+    }
+    
+    fileprivate func prepareConnection() {
+        self.connection = NWConnection(host: NWEndpoint.Host(self.serverIp), port: NWEndpoint.Port(rawValue: self.serverPort)!, using: .udp)
+        self.connection?.stateUpdateHandler = self.updateServerState(to:)
+        self.connection?.start(queue: .global())
+        
+        while !self.serverAlive {}
+        self.send(message: "TAPPER_CONNECTED " + self._currentPlayerName)
+        print("User connected to server")
+    }
+
+    func closeConnection() {
+        if self.serverAlive {
+            self.send(message: "TAPPER_DISCONNECTED")
+            self.serverAlive = false
+            self.connection?.cancel()
         }
     }
         
     func send(message: String) {
         self.connection?.send(content: message.data(using: String.Encoding.utf8), completion: NWConnection.SendCompletion.contentProcessed(({ (NWError) in
-            print(NWError!.errorCode)
+            if (NWError == nil) {
+                print("Data was sent!")
+            } else {
+                print("ERROR! Error when data (Type: Data) sending. NWError: \n \(NWError!)")
+            }
         })))
     }
         
-    func receive() {
-        self.connection?.receiveMessage { (data, context, isComplete, error) in
-            print(isComplete)
-            print(String(decoding: data ?? Data(), as: UTF8.self))
-            self.out_data = StateData().from_string(String(decoding: data ?? Data(), as: UTF8.self))
+    func receive() -> GameData {
+        self.connection?.receiveMessage { data, context, isComplete, error in
+            if (isComplete) {
+                if (data != nil) {
+                    let receivedData = String(decoding: data!, as: UTF8.self)
+                    print("Received message: \(receivedData)")
+                    
+                    if receivedData.hasPrefix("TAPPER_CONNECTED") {
+                        let name = receivedData.substring(with: ("TAPPER_CONNECTED".count)..<(receivedData.count))
+                        self.updateOtherPlayerName(name: name)
+                        
+                    } else if receivedData == receivedData {
+                        self.updateOtherPlayerName(name: "")
+                        
+                    } else {
+                        self._outputData = GameData().toGameData(receivedData)
+                    }
+                } else {
+                    print("ERROR! Data == nil")
+                }
+            }
         }
+        return self._outputData
     }
 }
 
 
-class ServerManager : ClientManager {
-    init() {
-        super.init(_server_ip: "127.0.0.1")
+class ClientManager : SocketConnection {
+    private var _clientDeviceName = ""
+    
+    var clientDeviceName: String {
+        get {
+            return self._clientDeviceName
+        }
+    }
+    
+    override init() {
+        super.init()
+    }
+    
+    func setServerIp(_ ip: String) {
+        if isValidIP(ip) {
+            self.serverIp = ip
+        }
+    }
+    
+    func isValidIP(_ ip: String) -> Bool {
+        let regex = try! NSRegularExpression(pattern: "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+        return regex.firstMatch(in: ip, range: NSRange(location: 0, length: ip.utf16.count)) != nil
+    }
+}
+
+
+class ServerManager : SocketConnection {
+    private var _serverDeviceName = ""
+    
+    var serverDeviceName: String {
+        get {
+            return self._serverDeviceName
+        }
+    }
+    
+    override init() {
+        super.init()
         
-        if self.get_server_ip() != nil {
-            self.server_ip = self.get_server_ip()!
+        if self.getServerIp() != nil {
+            self.serverIp = self.getServerIp()!
         }
     }
         
-    func get_server_ip() -> String? {
+    func getServerIp() -> String? {
         var address : String?
             
         var ifaddr : UnsafeMutablePointer<ifaddrs>?
@@ -140,24 +270,19 @@ class ServerManager : ClientManager {
         return address
     }
     
-    private func run_server() {
+    override func prepareConnection() {
         // ...
         // run executable python server file
         // ...
         
-        self.connection = NWConnection(host: NWEndpoint.Host(self.server_ip), port: NWEndpoint.Port(rawValue: self.server_port)!, using: .udp)
-            
-        if self.get_server_state() == "ready" {
-            self.connection?.start(queue: .global())
-            self.send(message: "TAPPER_CONNECTED")
-        }
-    }
-    
-    override func prepare_connection() {
-        self.run_server()
+        super.prepareConnection()
     }
 }
+
 
 // USE ".connect()" FOR CONNECT TO SERVER
 // USE ".get_data()" AND ".set_data()" FOR COMMUNICATE WITH OTHER PLAYER
 // USE "StateData()" STRUCT FOR STORING GAME DATA
+
+let server = ServerManager()
+server.openConnection()
