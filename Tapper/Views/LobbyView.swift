@@ -2,7 +2,8 @@ import SwiftUI
 
 struct LobbyView: View {
 
-    var playersList: [Player]
+    @Binding var hostsList: [HostData]
+    @Binding var myIp: String
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -12,18 +13,15 @@ struct LobbyView: View {
                 .foregroundColor(Color.gray)
 
             Divider()
-            ForEach(playersList) { player in
-                PlayerView(hostName: player.name, isServer: true)
+            ForEach(hostsList) { host in
+                HostView(hostName: host.name, isServer: host.isServer)
             }
             Divider()
-            Text("Your IP: 192.29.0.34")
+            Text("Your IP: \(myIp)")
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(Color.gray)
+            Spacer()
         }
     }
-}
-
-#Preview {
-    LobbyView(playersList: [Player(name: "HUESOS")])
 }

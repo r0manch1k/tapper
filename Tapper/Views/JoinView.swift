@@ -1,40 +1,40 @@
 import SwiftUI
 
-enum States: String {
+enum JoinStates: String {
     case connecting = "Connecting..."
     case waiting = "Waiting for starting..."
     case none = ""
 }
 
 struct JoinView: View {
+    
+    @EnvironmentObject var tapperConnection: TapperConnection
+    @Environment(\.callAlert) var callAlert
+    
     @Binding var isActive: Bool
-    @State private var showLobby: Bool = false
+    
     @State private var serverIp: String = ""
-    @State private var joinState: States = .none
-    @State private var showAlert: Bool = false
-    @State private var alertText: String = "Something went wrong!"
-    @EnvironmentObject private var clientManger: ClientManager
+    @State var myIp: String = "nah you're alone in this bruh"
+    
+    @State private var joinState: JoinStates = JoinStates.none
 
-    @State var playersList: [Player] = []
-
+    @State private var showLobby: Bool = false
+    
+    @State var hostsList: [HostData] = []
+    
     var body: some View {
         VStack {
             NavigationStack {
                 VStack(alignment: .leading) {
-                    HStack {
-                        TextField(
-                            "...",
-                            text: $serverIp
-                        )
-                        .textFieldStyle(.roundedBorder)
-                        .foregroundStyle(.gray)
-                        .disableAutocorrection(true)
-                    }
-
+                    TextField(
+                        "IP...",
+                        text: $serverIp
+                    )
+                    .textFieldStyle(.roundedBorder)
+                    .foregroundStyle(.gray)
+                    .disableAutocorrection(true)
                     Button {
-                        Task {
-                            await connectToServer(serverIp)
-                        }
+                        connectToServer(serverIp)
                     } label: {
                         Spacer()
                         Text("Connect")
@@ -42,31 +42,33 @@ struct JoinView: View {
                     }
                     .font(.subheadline)
                     .buttonStyle(.borderedProminent)
-                    .alert(isPresented: $showAlert) {
-                        Alert(title: Text("Error!"), message: Text(alertText), dismissButton: .default(Text("Got it!")))
-                    }
+                    
+                    Text("\(tapperConnection.messageLobby)")
+                        .opacity(0)
+                    
                     Spacer()
+                }
+                .onChange(of: tapperConnection.messageLobby) {
+                    refreshHostsList(tapperConnection.messageLobby)
                 }
             }
             .navigationDestination(isPresented: $showLobby, destination: {
-                LobbyView(playersList: playersList)
-                Spacer()
+                LobbyView(hostsList: $hostsList, myIp: $myIp)
             })
-
-            if joinState != .none {
-                Label {
-                    Text(joinState.rawValue)
-                } icon: {
-                    Image(systemName: "progress.indicator")
-                }
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(Color.gray)
-                .symbolEffect(.rotate, options: .repeat(.continuous))
+            
+            Label {
+                Text(joinState.rawValue)
+            } icon: {
+                Image(systemName: "progress.indicator")
             }
-
+            .font(.caption)
+            .fontWeight(.semibold)
+            .foregroundColor(Color.gray)
+            .symbolEffect(.rotate, options: .repeat(.continuous))
+            .opacity(joinState == JoinStates.none ? 0 : 1)
+            
             Button {
-                isActive = false
+                leaveView()
             } label: {
                 Text("Back")
                     .font(.caption)
@@ -75,46 +77,38 @@ struct JoinView: View {
             .buttonStyle(.link)
         }
     }
-
-    private func connectToServer(_ serverInfo: String) async {
-        joinState = .connecting
+    
+    private func connectToServer(_ serverIp: String) {
+        if serverIp == "" {
+            return
+        }
         
-        var response: String = ""
-
+        joinState = JoinStates.connecting
+        
         do {
-            response = try await clientManger.connectToServer(serverIp)
-        } catch CustomErrors.InvalidAddress {
-            callAlert("Invalid IP address")
-            return
-        } catch CustomErrors.NetworkError {
-            callAlert("Unable to connect to server")
+            try tapperConnection.createConnection(ip: serverIp)
+            myIp = tapperConnection.myIp
+        } catch let error as CustomErrors {
+            callAlert!(error.rawValue)
+            joinState = JoinStates.none
             return
         } catch {
+            callAlert!(error.localizedDescription)
+            joinState = JoinStates.none
             return
         }
-
-        do {
-            playersList = try Decoder.toPlayersList(response)
-        } catch CustomErrors.DecoderError {
-            callAlert("Invalid data recieved")
-            return
-        } catch {
-            return
-        }
-
+        
+        joinState = JoinStates.waiting
+    }
+    
+    private func refreshHostsList(_ hostsList_: [HostData]) {
         showLobby = true
-
+        hostsList = hostsList_
         joinState = .waiting
     }
     
-    private func callAlert(_ text: String) {
-        joinState = .none
-        alertText = "Invalid IP address"
-        showAlert = true
+    private func leaveView() {
+        tapperConnection.closeConnection()
+        isActive = false
     }
-}
-
-#Preview {
-    @Previewable @State var providedValue: Bool = false
-    JoinView(isActive: $providedValue)
 }

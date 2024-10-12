@@ -1,11 +1,11 @@
-struct GameData {
-    var playerX: Double = 0
-    var playerY: Double = 0
-    var mouseX: Double = 0
-    var mouseY: Double = 0
-    var mouseClicked: Bool = false
+import CoreFoundation
 
-    func toString() -> String {
-        return "state:\(playerX):\(playerY):\(mouseX):\(mouseY):\(mouseClicked.toInt())"
-    }
+struct GameData {
+    var name: String
+    var skin: String
+    var velocity: CGVector
+    var playerX: Double
+    var playerY: Double
+    var keyPressed: Bool
+    var score: (Int, Int)
 }

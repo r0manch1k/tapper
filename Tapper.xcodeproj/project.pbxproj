@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		303AD8AE2CB8F765001CFB29 /* CocoaAsyncSocket in Frameworks */ = {isa = PBXBuildFile; productRef = 303AD8AD2CB8F765001CFB29 /* CocoaAsyncSocket */; };
+		303AD8B02CB8F772001CFB29 /* CocoaAsyncSocket in Frameworks */ = {isa = PBXBuildFile; productRef = 303AD8AF2CB8F772001CFB29 /* CocoaAsyncSocket */; };
+		303AD8B22CB8F776001CFB29 /* CocoaAsyncSocket in Frameworks */ = {isa = PBXBuildFile; productRef = 303AD8B12CB8F776001CFB29 /* CocoaAsyncSocket */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3021AE032CA6D363005D8CB6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -42,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				303AD8AE2CB8F765001CFB29 /* CocoaAsyncSocket in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -49,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				303AD8B22CB8F776001CFB29 /* CocoaAsyncSocket in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -56,6 +64,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				303AD8B02CB8F772001CFB29 /* CocoaAsyncSocket in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -66,6 +75,7 @@
 			isa = PBXGroup;
 			children = (
 				3021ADF32CA6D361005D8CB6 /* Tapper */,
+				3074B1C12CB787DB00C03259 /* Frameworks */,
 				3021ADF22CA6D361005D8CB6 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,6 +88,13 @@
 				3021AE0C2CA6D363005D8CB6 /* TapperUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		3074B1C12CB787DB00C03259 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -100,6 +117,7 @@
 			);
 			name = Tapper;
 			packageProductDependencies = (
+				303AD8AD2CB8F765001CFB29 /* CocoaAsyncSocket */,
 			);
 			productName = Tapper;
 			productReference = 3021ADF12CA6D361005D8CB6 /* Tapper.app */;
@@ -120,6 +138,7 @@
 			);
 			name = TapperTests;
 			packageProductDependencies = (
+				303AD8B12CB8F776001CFB29 /* CocoaAsyncSocket */,
 			);
 			productName = TapperTests;
 			productReference = 3021AE022CA6D363005D8CB6 /* TapperTests.xctest */;
@@ -140,6 +159,7 @@
 			);
 			name = TapperUITests;
 			packageProductDependencies = (
+				303AD8AF2CB8F772001CFB29 /* CocoaAsyncSocket */,
 			);
 			productName = TapperUITests;
 			productReference = 3021AE0C2CA6D363005D8CB6 /* TapperUITests.xctest */;
@@ -177,6 +197,9 @@
 			);
 			mainGroup = 3021ADE82CA6D360005D8CB6;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				303AD8AC2CB8F765001CFB29 /* XCLocalSwiftPackageReference "../../../Downloads/CocoaAsyncSocket-master" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3021ADF22CA6D361005D8CB6 /* Products */;
 			projectDirPath = "";
@@ -378,13 +401,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Tapper/Tapper.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = T7AKB29RH8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.kids-games";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -403,13 +430,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Tapper/Tapper.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = T7AKB29RH8;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.kids-games";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -527,6 +558,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		303AD8AC2CB8F765001CFB29 /* XCLocalSwiftPackageReference "../../../Downloads/CocoaAsyncSocket-master" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../Downloads/CocoaAsyncSocket-master";
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		303AD8AD2CB8F765001CFB29 /* CocoaAsyncSocket */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = CocoaAsyncSocket;
+		};
+		303AD8AF2CB8F772001CFB29 /* CocoaAsyncSocket */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 303AD8AC2CB8F765001CFB29 /* XCLocalSwiftPackageReference "../../../Downloads/CocoaAsyncSocket-master" */;
+			productName = CocoaAsyncSocket;
+		};
+		303AD8B12CB8F776001CFB29 /* CocoaAsyncSocket */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 303AD8AC2CB8F765001CFB29 /* XCLocalSwiftPackageReference "../../../Downloads/CocoaAsyncSocket-master" */;
+			productName = CocoaAsyncSocket;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3021ADE92CA6D360005D8CB6 /* Project object */;
 }
