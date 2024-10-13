@@ -33,7 +33,7 @@ struct ContentView: View {
             SidebarView()
                 .frame(minWidth: 200, idealWidth: 200)
         }
-        .frame(minWidth: 1160, idealWidth: 1160, minHeight: 540, idealHeight: 540)
+        .frame(minWidth: 1160, idealWidth: 1160, maxWidth: 1160, minHeight: 540, idealHeight: 540, maxHeight: 540)
         .environmentObject(tapperConnection)
         .environment(\.callAlert, callAlert)
         .alert(isPresented: $showAlert) {

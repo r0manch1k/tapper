@@ -57,7 +57,7 @@ struct SidebarView: View {
                     .buttonStyle(.borderedProminent)
 
                     Button {
-                        
+                        showJoin = true
                     } label: {
                         Spacer()
                         Text("Join")
