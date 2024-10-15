@@ -3,10 +3,6 @@
 
 > **Tapper** is a local online game for two and more players where the goal is to catch up to your opponent as quickly as possible. The game is designed for players who are connected to the same local network and wanna test their reflexes and reaction speed.
 
-![Снимок экрана 2024-10-15 в 18.07.49.png](https://s.iimg.su/s/15/N5x1ERVK1VpcBsaAP2bzSwNrk0bggJi5S7bT9g0L.png)
-
-![Снимок экрана 2024-10-15 в 18.08.21.png](https://s.iimg.su/s/15/CUARldupejkUJQDgvgbwD0HsYMq1bZ9TNZ6CFuti.png)
-
 ![Снимок экрана 2024-10-15 в 18.12.10.png](https://s.iimg.su/s/15/R6BU6LTGBl4Avs4xir6vsDXq1aXTLoQF1P2nXwcB.png)
 
 ## 🛠️ Installation
