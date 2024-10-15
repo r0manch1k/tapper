@@ -18,20 +18,18 @@ struct ContentView: View {
     @State private var showAlert: Bool = false
     @State private var alertText: String = "Something went wrong"
     
-    private var scene: SKScene {
-        let scene = GameScene(fileNamed: "GameScene")!
-        scene.setConnection(tapperConnection)
-        scene.scaleMode = .aspectFill
-        return scene
-    }
+    @StateObject var scene: GameScene = GameScene(fileNamed: "GameScene")!
 
     var body: some View {
         HStack(spacing: 0) {
             SpriteView(scene: scene)
                 .frame(minWidth: 960, idealWidth: 960, minHeight: 540, idealHeight: 540)
-            
+                .aspectRatio(contentMode: .fill)
             SidebarView()
                 .frame(minWidth: 200, idealWidth: 200)
+                .onAppear {
+                    scene.setConnection(tapperConnection)
+                }
         }
         .frame(minWidth: 1160, idealWidth: 1160, maxWidth: 1160, minHeight: 540, idealHeight: 540, maxHeight: 540)
         .environmentObject(tapperConnection)

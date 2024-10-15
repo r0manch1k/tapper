@@ -19,6 +19,7 @@ struct JoinView: View {
     @State private var joinState: JoinStates = JoinStates.none
 
     @State private var showLobby: Bool = false
+    @State private var showDisconnect: Bool = false
     
     @State var hostsList: [HostData] = []
     
@@ -43,13 +44,7 @@ struct JoinView: View {
                     .font(.subheadline)
                     .buttonStyle(.borderedProminent)
                     
-                    Text("\(tapperConnection.messageLobby)")
-                        .opacity(0)
-                    
                     Spacer()
-                }
-                .onChange(of: tapperConnection.messageLobby) {
-                    refreshHostsList(tapperConnection.messageLobby)
                 }
             }
             .navigationDestination(isPresented: $showLobby, destination: {
@@ -67,14 +62,30 @@ struct JoinView: View {
             .symbolEffect(.rotate, options: .repeat(.continuous))
             .opacity(joinState == JoinStates.none ? 0 : 1)
             
-            Button {
-                leaveView()
-            } label: {
-                Text("Back")
-                    .font(.caption)
-                    .frame(maxWidth: .infinity)
+            if showDisconnect {
+                Button {
+                    endGame()
+                } label: {
+                    Text("Disconnect")
+                }
+                .font(.caption)
+                .buttonStyle(.link)
+                .foregroundStyle(.red)
+            } else {
+                Button {
+                    leaveView()
+                } label: {
+                    Text("Back")
+                }
+                .font(.caption)
+                .buttonStyle(.link)
             }
-            .buttonStyle(.link)
+        }
+        .onChange(of: tapperConnection.messageLobby) {
+            refreshHostsList(tapperConnection.messageLobby)
+        }
+        .onChange(of: tapperConnection.messageDc) {
+            endGame()
         }
     }
     
@@ -98,16 +109,20 @@ struct JoinView: View {
             return
         }
         
+        showDisconnect = true
         joinState = JoinStates.waiting
     }
     
     private func refreshHostsList(_ hostsList_: [HostData]) {
         showLobby = true
         hostsList = hostsList_
-        joinState = .waiting
     }
     
     private func leaveView() {
+        isActive = false
+    }
+    
+    private func endGame() {
         tapperConnection.closeConnection()
         isActive = false
     }

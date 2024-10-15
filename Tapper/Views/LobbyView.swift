@@ -17,10 +17,23 @@ struct LobbyView: View {
                 HostView(hostName: host.name, isServer: host.isServer)
             }
             Divider()
-            Text("Your IP: \(myIp)")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(Color.gray)
+            HStack(spacing: 5, content: {
+                Text("Your IP: \(myIp)")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(Color.gray)
+                Button {
+                    NSPasteboard.general.declareTypes([.string], owner: nil)
+                    let pasteboard = NSPasteboard.general
+                    pasteboard.setString(myIp, forType: .string)
+                } label: {
+                    Image(systemName: "document.on.document.fill")
+                }
+                .controlSize(.mini)
+                .buttonStyle(.borderless)
+                Spacer()
+            })
+            
             Spacer()
         }
     }

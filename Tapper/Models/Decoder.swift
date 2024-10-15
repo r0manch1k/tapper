@@ -82,10 +82,10 @@ extension String {
     }
     
     func toVector() throws -> CGVector {
-        guard let a = Int(self.components(separatedBy: ",")[0].dropFirst()) else {
+        guard let a = Double(self.components(separatedBy: ",")[0].dropFirst()) else {
             throw CustomErrors.DataError
         }
-        guard let b =  Int(self.components(separatedBy: ",")[1].dropLast()) else {
+        guard let b =  Double(self.components(separatedBy: ",")[1].dropLast()) else {
             throw CustomErrors.DataError
         }
         return CGVector(dx: a, dy: b)
@@ -115,6 +115,6 @@ extension CGVector {
     }
 }
 
-func tupleToString<T1, T2>(_ t: (T1, T2)) -> String {
-    return "(\(T1.self),\(T2.self))"
+func tupleToString(_ tuple: (Int, Int)) -> String {
+    return "(\(tuple.0),\(tuple.1))"
 }

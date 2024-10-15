@@ -23,8 +23,8 @@ struct SidebarView: View {
                 VStack {
                     VStack(alignment: .leading, spacing: 10.0) {
                         Text("Click Create to start a new game. You will be moved to the lobby. Please wait for other players to join, then click Start to begin.")
-                        Text("If you would like to join an existing lobby, click Join and enter the server's IP address followed by the port number.")
-                        Text("Keep tapping on the other hamster. The hamster that reaches 10 taps first wins.")
+                        Text("If you would like to join an existing lobby, click Join and enter the server's IP address.")
+                        Text("Just have fun with your friends.")
                         Text("Mind you can't press two or more keys at the time.")
                         Text("Good Luck!")
                     }
@@ -46,9 +46,7 @@ struct SidebarView: View {
                     .opacity(showLoading ? 1 : 0)
 
                     Button {
-                        Task {
-                            await createGame()
-                        }
+                        createGame()
                     } label: {
                         Spacer()
                         Text("Create")
@@ -79,10 +77,10 @@ struct SidebarView: View {
         .listStyle(.sidebar)
     }
     
-    func createGame() async {
+    func createGame() {
         showLoading = true
         do {
-            try await tapperConnection.createConnection()
+            try tapperConnection.createConnection()
         } catch let error as CustomErrors {
             callAlert!(error.rawValue)
             showLoading = false

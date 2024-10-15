@@ -2,6 +2,7 @@ import SpriteKit
 import GameplayKit
 import SwiftUI
 import AVFoundation
+import Combine
 
 enum GameState {
     case playground
@@ -43,15 +44,12 @@ enum Bar: String, CaseIterable {
     case blue = "Bar_Blue"
 }
 
-protocol GameControllerDelegate: AnyObject {
-    func receiveGameData(_ gameData: GameData)
+protocol GameControllerDelegate: NSObjectProtocol {
     func gameStarted() // Called only from game creator
     func gameEnded()
 }
 
-class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
-    
-    @Environment(\.callAlert) var callAlert
+class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate, ObservableObject {
     
     var tapperConnection: TapperConnection?
     
@@ -70,9 +68,7 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     private var myName: String = "Me"
     private var myCharacter: String = GameCharacters.allCases.randomElement()!.rawValue
     private var isServer: Bool = false
-    
-    private var categoryMaskNumber: UInt32 = 0
-    
+
     var backgroundAudio: SKAudioNode = SKAudioNode()
     var jumpAudio: SKAudioNode = SKAudioNode()
     var swishAudio: SKAudioNode = SKAudioNode()
@@ -94,8 +90,16 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     private let jumpStrenght: CGFloat = 250
     private var deltaValue: CGFloat = 0.1
     
+    private var playerBitMask: UInt32 = 0x1 << 0
+    private var friendsBitMask: UInt32 = 0x2 << 0
+    
+    
+    var cancellables: Set<AnyCancellable> = []
+    
     override func sceneDidLoad() {
         super.sceneDidLoad()
+        
+        self.scaleMode = .aspectFill
         
         self.physicsWorld.contactDelegate = self
         
@@ -121,8 +125,9 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
         backgroundNode = childNode(withName: "Far")!
         midgroundNode = childNode(withName: "Middle")!
         foregroundNode = childNode(withName: "Close")!
-            
-        playerNode = addPlayerToScene(myCharacter)
+        
+        myCharacter = GameCharacters.allCases.randomElement()!.rawValue
+        playerNode = addPlayerToScene(myCharacter, bitMask: playerBitMask)
         isKeyPressed[playerNode] = false
         setPlayerPaw(playerNode: playerNode, playerCharacter: myCharacter)
         taggedNode = playerNode
@@ -165,10 +170,18 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     func setConnection(_ connection: TapperConnection) {
         tapperConnection = connection
         tapperConnection!.gameControllerDelegate = self
+        
+        tapperConnection!.$messageGameData
+            .sink() { [weak self] value in
+                if value != nil {
+                    self?.receivedGameData(value!)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     private func playBackgroundMusic() {
-        backgroundAudio.run(SKAction.changeVolume(to: 0.2, duration: 5))
+        backgroundAudio.run(SKAction.changeVolume(to: 0.15, duration: 5))
         backgroundAudio.run(SKAction.play())
     }
     
@@ -191,38 +204,42 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
         midgroundNode.position = CGPoint(x: -(playerPosition.x / 55), y: 0)
         foregroundNode.position = CGPoint(x: -(playerPosition.x / 50), y: 0)
         
-        setPlayerPawPosition(playerNode: playerNode, pawNode: pawsNodes[playerNode]!)
-        pawsNodes[playerNode]?.isHidden = isKeyPressed[playerNode]! ? false : true
 
+        if let myPaw = pawsNodes[playerNode] {
+            setPlayerPawPosition(playerNode: playerNode, pawNode: myPaw)
+            if let isPressed = isKeyPressed[playerNode] {
+                myPaw.isHidden = isPressed ? false : true
+            } else {
+                isKeyPressed.updateValue(false, forKey: playerNode)
+            }
+        } else {
+            setPlayerPaw(playerNode: playerNode, playerCharacter: myCharacter)
+        }
+        
         handleGameProcess()
     }
     
     private func handleGameProcess() {
         if gameState.isState(GameState.lobby) && friendsNodes.count > 0 {
-            if isServer == false {
-                stopBackgroundMusic()
-            }
             gameState.toGame()
         }
         
         switch gameState {
         case .playground:
-            gameState.toLobby()
             break
         case .lobby:
+            setPlayerNamePos(playerNode: playerNode)
             break
         case .game:
             sendGameData()
-            
+            setPlayerNamePos(playerNode: playerNode)
             for friend in friendsNodes {
                 let node: SKSpriteNode = friend.value
                 setPlayerNamePos(playerNode: node)
                 if let isPressed = isKeyPressed[node] {
                     if let paw = pawsNodes[node] {
-                        paw.isHidden = !isPressed
                         setPlayerPawPosition(playerNode: node, pawNode: paw)
-                    } else {
-                        setPlayerPaw(playerNode: node, playerCharacter: GameCharacters.allCases.randomElement()!.rawValue)
+                        paw.isHidden = !isPressed
                     }
                     if let isCollision = collisionWith[node] {
                         isWhipSound = isCollision
@@ -270,37 +287,31 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     }
     
     private func setNewPlayer(playerName: String, playerCharacter: String) -> SKSpriteNode {
-        friendsNodes.updateValue(addPlayerToScene(), forKey: playerName)
+        friendsNodes.updateValue(addPlayerToScene(playerCharacter, bitMask: friendsBitMask), forKey: playerName)
         setPlayerBar(playerNode: friendsNodes[playerName]!, name: playerName, character: playerCharacter)
         setPlayerName(playerNode: friendsNodes[playerName]!, name: playerName)
+        setPlayerPaw(playerNode: friendsNodes[playerName]!, playerCharacter: playerCharacter)
         return friendsNodes[playerName]!
     }
     
-    private func addPlayerToScene(_ character: String? = nil) -> SKSpriteNode {
-        var c: String? = character
-        if c == nil {
-            c = GameCharacters.allCases.randomElement()!.rawValue
-        }
-        let newPlayerNode: SKSpriteNode = SKSpriteNode(imageNamed: c!)
+    private func addPlayerToScene(_ playerCharacter: String, bitMask: UInt32) -> SKSpriteNode {
+        let newPlayerNode: SKSpriteNode = SKSpriteNode(imageNamed: playerCharacter)
         newPlayerNode.size = CGSize(width: newPlayerNode.frame.width / (newPlayerNode.frame.height / 110), height: 110)
         newPlayerNode.physicsBody = SKPhysicsBody(circleOfRadius: newPlayerNode.size.height / 2 + 5)
         newPlayerNode.physicsBody?.mass = 0.2
-        newPlayerNode.physicsBody?.collisionBitMask = 1
         newPlayerNode.position = CGPoint(x: 0, y: 300)
         newPlayerNode.physicsBody?.usesPreciseCollisionDetection = true
-        newPlayerNode.physicsBody?.categoryBitMask = categoryMaskNumber
-        var bitMask: UInt32 = 0
-        for i in 0...categoryMaskNumber {
-            bitMask = bitMask | i
-        }
-//        newPlayerNode.physicsBody?.collisionBitMask = bitMask
-        newPlayerNode.physicsBody?.contactTestBitMask = bitMask
+        newPlayerNode.physicsBody?.categoryBitMask = bitMask
+        newPlayerNode.physicsBody?.contactTestBitMask = (bitMask == playerBitMask) ? friendsBitMask : playerBitMask
         insertChild(newPlayerNode, at: 5)
-        setPlayerPaw(playerNode: newPlayerNode, playerCharacter: c!)
+        setPlayerPaw(playerNode: newPlayerNode, playerCharacter: playerCharacter)
         return newPlayerNode
     }
     
     private func setPlayerPaw(playerNode: SKSpriteNode, playerCharacter: String) {
+        if let _ = pawsNodes[playerNode] {
+            return
+        }
         let pawNode: SKSpriteNode = SKSpriteNode(imageNamed: "Paw_" + playerCharacter)
         pawNode.size = CGSize(width: 40, height: 40)
         pawNode.isHidden = true
@@ -309,7 +320,7 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     }
     
     private func setPlayerPawPosition(playerNode: SKSpriteNode, pawNode: SKSpriteNode) {
-        let radius: CGFloat = playerNode.frame.width / 2
+        let radius: CGFloat = playerNode.frame.width / 2 - 10
         let rotation: CGFloat = playerNode.zRotation
         pawNode.zRotation = rotation
         pawNode.position.x = playerNode.position.x + cos(rotation) * radius
@@ -317,6 +328,9 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     }
     
     private func setPlayerBar(playerNode: SKSpriteNode, name: String, character: String) {
+        if let _ = barsNodes[playerNode] {
+            return
+        }
         let barHeight: CGFloat = 100
         
         let barImage = SKSpriteNode(imageNamed: Bar.allCases.randomElement()!.rawValue)
@@ -346,7 +360,8 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
         scoreLabel.position = CGPoint(x: playerImage.position.x + playerImage.frame.width + scoreLabel.frame.width / 2 + 20, y: -playerImage.frame.height / 3)
         
         HUDNode.addChild(barImage)
-        barImage.position = CGPoint(x: -frame.width / 2 - barImage.frame.width + 20, y: frame.height / 2 - barHeight / 2 - 20)
+   
+        barImage.position = CGPoint(x: -frame.width / 2 - barImage.frame.width + 20, y: frame.height / 2 - barHeight / 2 - 20 - (3 * barHeight / 2 - 20) * CGFloat(barsNodes.count))
         
         let appearAction: SKAction = SKAction.moveTo(x: -frame.width / 2 + barImage.frame.width / 2 + 20, duration: 0.7)
         appearAction.timingMode = .easeOut
@@ -356,6 +371,9 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     }
     
     private func setPlayerName(playerNode: SKSpriteNode, name: String) {
+        if let _ = namesLabels[playerNode] {
+            return
+        }
         let textNode: SKLabelNode = SKLabelNode()
         textNode.text = name
         textNode.fontName = "SignPainter"
@@ -367,7 +385,6 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     
     private func setPlayerNamePos(playerNode: SKSpriteNode) {
         guard let nameLabel = namesLabels[playerNode] else {
-            setPlayerNamePos(playerNode: playerNode)
             return
         }
         nameLabel.position.x = playerNode.position.x
@@ -375,8 +392,10 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     }
     
     func sendGameData() {
-        let gameData: GameData = GameData(name: myName, skin: myCharacter, velocity: playerNode.physicsBody!.velocity, playerX: playerNode.position.x, playerY: playerNode.position.y, keyPressed: isKeyPressed[playerNode]!, score: (0, 0))
-        tapperConnection!.send(message: gameData.toString())
+        if tapperConnection!.serverAlive {
+            let gameData: GameData = GameData(name: myName, skin: myCharacter, velocity: playerNode.physicsBody!.velocity, playerX: playerNode.position.x, playerY: playerNode.position.y, keyPressed: isKeyPressed[playerNode]!, score: (0, 0))
+            tapperConnection!.send(message: gameData.toString())
+        }
     }
     
     func isCameraOutOfSceneX(_ cameraPosition: CGPoint) -> Bool {
@@ -432,34 +451,81 @@ class GameScene: SKScene, GameControllerDelegate, SKPhysicsContactDelegate {
     
     // GAME CONTROLLER DELEGATE FUNCTIONS:
     
-    func receiveGameData(_ gameData: GameData) {
+    func receivedGameData(_ gameData: GameData) {
         let playerName: String = gameData.name
-        
+
         guard let friendNode = friendsNodes[playerName] else {
-            let friendNode = setNewPlayer(playerName: playerName, playerCharacter: gameData.skin)
+            let friendNode: SKSpriteNode = setNewPlayer(playerName: playerName, playerCharacter: gameData.skin)
             friendNode.position = CGPoint(x: gameData.playerX, y: gameData.playerY)
+            friendNode.physicsBody?.velocity = gameData.velocity
+            
+            if isServer == false {
+                gameState.toGame()
+                myName = tapperConnection!.myDeviceName
+                setPlayerBar(playerNode: playerNode, name: myName, character: myCharacter)
+                setPlayerName(playerNode: playerNode, name: myName)
+            }
             return
         }
-        
+    
         friendNode.position = CGPoint(x: gameData.playerX, y: gameData.playerY)
+        friendNode.physicsBody?.velocity = gameData.velocity
     }
     
     func gameEnded() {
+        gameState.toPlayground()
+        
         if isServer == false {
             playBackgroundMusic()
         }
+        
+        for node in friendsNodes {
+            let node: SKSpriteNode = node.value
+            if node != playerNode {
+                node.removeFromParent()
+            }
+        }
+        friendsNodes.removeAll()
+        
+        for node in namesLabels {
+            let node: SKLabelNode = node.value
+            node.removeFromParent()
+            
+        }
+        namesLabels.removeAll()
+        
+        for node in barsNodes {
+            let node: SKLabelNode = node.value
+            node.removeFromParent()
+        }
+        barsNodes.removeAll()
+        
+        collisionWith.removeAll()
+        
+        isKeyPressed.removeAll()
+        isKeyPressed.updateValue(false, forKey: playerNode)
+        
+        for node in pawsNodes {
+            if node.key != playerNode {
+                pawsNodes.removeValue(forKey: node.key)
+                node.value.removeFromParent()
+            }
+        }
+        
+        HUDNode.removeAllChildren()
+    
         isServer = false
         return
     }
     
     func gameStarted() {
-        print("startGame from GameScene")
-        
         myName = tapperConnection!.myDeviceName
-        setPlayerName(playerNode: playerNode, name: String(myName.dropFirst()))
         
+        stopBackgroundMusic()
         sendGameData()
         gameState.toLobby()
+        setPlayerName(playerNode: playerNode, name: myName)
+        setPlayerBar(playerNode: playerNode, name: myName, character: myCharacter)
         
         isServer = true
         return

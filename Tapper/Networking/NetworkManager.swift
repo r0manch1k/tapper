@@ -1,13 +1,14 @@
-import CocoaAsyncSocket
-import Foundation
 import Network
+import Combine
+import Foundation
+import CocoaAsyncSocket
 
 class TapperConnection: NSObject, ObservableObject, GCDAsyncUdpSocketDelegate {
-    private var connection: GCDAsyncUdpSocket
-
+    var connection: GCDAsyncUdpSocket
+    
+    var serverAlive = false
     private var _isServer = false
     private var _isClient = false
-    private var serverAlive = false
     private var serverPort: UInt16 = 20001
     private var serverIp: String = "127.0.0.1"
     
@@ -19,12 +20,20 @@ class TapperConnection: NSObject, ObservableObject, GCDAsyncUdpSocketDelegate {
 
     @Published var messageDc: [HostData] = []
     @Published var messageLobby: [HostData] = []
-
+    @Published var messageGameData: GameData?
+    
+    private var taskAsync: Task<(), Never>!
+    
     override init() {
         connection = GCDAsyncUdpSocket()
+        
         super.init()
         connection.setDelegate(self)
         connection.setDelegateQueue(DispatchQueue.main)
+    }
+    
+    func startGame() {
+        gameControllerDelegate?.gameStarted()
     }
     
     var isServer: Bool {
@@ -79,30 +88,30 @@ class TapperConnection: NSObject, ObservableObject, GCDAsyncUdpSocketDelegate {
         return regex.firstMatch(in: ip, range: NSRange(location: 0, length: ip.utf16.count)) != nil
     }
     
-    private func shell(command: String) {
-        let process = Process()
-        process.launchPath = "/bin/bash"
-        process.arguments = ["-c", command]
-
+    private func shell(command: String) throws {
+        let task = Process()
+        task.launchPath = "/bin/bash"
+        task.arguments = ["-c", command]
+        
         do {
-            try process.run()
+            try task.run()
         } catch {
-            print("Error running Server: \(error)")
+            throw CustomErrors.NetworkError
         }
     }
 
-    func createConnection() async throws {
+    func createConnection() throws {
         let ip = getMyIp()
         if ip != nil {
             serverIp = ip!
             _myIp = ip!
         } else {
-            print(CustomErrors.InvalidAddress.localizedDescription)
-            return
+            throw CustomErrors.InvalidAddress
         }
 
         _isServer = true
-        await runServer()
+        
+        runServer()
     }
 
     func createConnection(ip: String) throws {
@@ -116,90 +125,111 @@ class TapperConnection: NSObject, ObservableObject, GCDAsyncUdpSocketDelegate {
         if myIp != nil {
             _myIp = myIp!
         } else {
-            print(CustomErrors.NetworkError.localizedDescription)
-            return
+            throw CustomErrors.NetworkError
         }
 
         _isClient = true
-        connectToServer()
-    }
-    
-    func startGame() {
-        gameControllerDelegate?.gameStarted()
-    }
-    
-    private func runServer() async {
-        let currentFileURL = URL(fileURLWithPath: #file)
-        let serverURL = currentFileURL.deletingLastPathComponent().appending(component: "Server.sh")
         
-        shell(command: serverURL.path())
-
-        while messageLobby == [] {
-            connectToServer()
+        taskAsync = Task {
+            await connectToServer()
         }
     }
     
-    private func connectToServer() {
+    private func runServer() {
+        let currentFileURL = URL(fileURLWithPath: #file)
+        let serverURL = currentFileURL.deletingLastPathComponent().appending(component: "Server.sh")
+        
+        try! shell(command: "xattr -d com.apple.quarantine \(serverURL.path())")
+        try! shell(command: "chmod +x \(serverURL.path())")
+        try! shell(command: serverURL.path())
+        
+        taskAsync = Task {
+            await connectToServer()
+        }
+    }
+    
+    private func setupConnection() {
         do {
             try connection.bind(toPort: _myPort)
         } catch {
             print(error.localizedDescription)
         }
-
+        
         do {
             try connection.connect(toHost: serverIp, onPort: serverPort)
         } catch {
             print(error.localizedDescription)
         }
-
+        
         do {
             try connection.beginReceiving()
         } catch {
             print(error.localizedDescription)
         }
         
-        if _isServer {
-            send(message: "im:\(_myDeviceName)!")
-        } else {
-            send(message: "im:\(_myDeviceName)")
+        connection.setMaxSendBufferSize(1024)
+        connection.setMaxReceiveIPv4BufferSize(1024)
+    }
+    
+    private func connectToServer() async {
+        while !taskAsync.isCancelled {
+            setupConnection()
+            if _isServer {
+                send(message: "im:\(_myDeviceName)!")
+            } else {
+                send(message: "im:\(_myDeviceName)")
+            }
+            
+            if messageLobby != [] {
+                serverAlive = true
+                break
+            }
         }
     }
 
     func closeConnection() {
-        if isServer {
-            send(message: "sd")
-        } else {
-            send(message: "dc:\(_myDeviceName)")
+        if serverAlive {
+            if isServer {
+                send(message: "sd")
+                try! shell(command: "killall Server.sh")
+            } else {
+                send(message: "dc:\(_myDeviceName)")
+            }
         }
         connection.close()
+        taskAsync.cancel()
         
         messageDc = []
         messageLobby = []
         _isClient = false
         _isServer = false
         serverAlive = false
+        
+        gameControllerDelegate?.gameEnded()
     }
 
     func send(message: String) {
         let data = message.data(using: .utf8)!
-        connection.send(data, withTimeout: 0.1, tag: 0)
+        connection.send(data, withTimeout: -1, tag: 0)
     }
     
     public func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
-        let response: String = String(decoding: data, as: UTF8.self)
-        print("Received data: \(response)")
-
+        let response: String = String(decoding: data, as: UTF8.self).components(separatedBy: "\n")[0]
+        
+        print("RESPONSE: \(response)")
+            
         var decodedData: Any
         var messageType: MessageType
         (decodedData, messageType) = try! Decoder.decodeMessage(response)
-
+        
         switch messageType {
         case MessageType.lobby:
             messageLobby = decodedData as! [HostData]
         case MessageType.dc:
             messageDc = decodedData as! [HostData]
+            closeConnection()
         case MessageType.gamedata:
-            gameControllerDelegate?.receiveGameData(decodedData as! GameData)
+            messageGameData = (decodedData as! GameData)
         }
     }
 }
