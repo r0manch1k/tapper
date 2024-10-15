@@ -2,7 +2,6 @@
 ![Static Badge](https://img.shields.io/badge/Tapper-v1.0.0-blue?style=flat-&labelColor=gray) ![Static Badge](https://img.shields.io/badge/For-MacOS-blue?style=flat-square&labelColor=white)
 
 **Tapper** is a local online game for two and more players where the goal is to catch up to your opponent as quickly as possible. The game is designed for players who are connected to the same local network and wanna test their reflexes and reaction speed.
-![icon_512x512@2x.png](https://s.iimg.su/s/15/4QYL3MqTfCEtsnGDk3tdS8znJl9zjdq0YMeDgFpl.png)
 
 ![Снимок экрана 2024-10-15 в 18.07.49.png](https://s.iimg.su/s/15/N5x1ERVK1VpcBsaAP2bzSwNrk0bggJi5S7bT9g0L.png)
 
